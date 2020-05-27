@@ -3,41 +3,62 @@ import './App.css';
 import Wrapper from "./components/Wrapper";
 import images from "./images.json"
 import GameCard from "./components/GameCard";
+import Nav from "./components/Nav"
 
 class App extends Component {
 
   state = {
-    images: images,
+    message : "Click an image to begin!",
+    images,
+    unclickedImages : images,
     score: 0,
     topScore: 0
   }
 
   clickedCard = id => {
+    // if click unclicked image -> score up
+    if(this.state.unclickedImages.find(image=> image.id === id)){
+      this.setState({
+        score: this.state.score +1,
+        unclickedImages : this.state.unclickedImages.filter(image=> image.id !== id),
+        message : "You guessed correctly!",
+      });
+
+    // if click clicked image -> restart
+    } else {
+      this.setState({
+        message: "You guessed incorrectly!",
+        unclickedImages : this.state.images,
+        score : 0,
+        topScore : (this.state.score > this.state.topScore) ? this.state.score : this.state.topScore
+      })
+    }
+    console.log(this.state.unclickedImages);
 
   }
-
+  
   shuffleArray = array => {
     let i = array.length - 1;
-    for (; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-    return array;
+      for (; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+      return array;
   }
   render() {
-
+    
     return (
       <div className="App">
         <header>
-          <nav className="navbar navbar-light bg-light">
-            <a className="navbar-brand" href="/">Clicky Game</a>
-            <li className="navbar">Click an image to begin!</li>
-            <li className="navbar">Score: 0 | Top Score: 0</li>
-          </nav>
+          <Nav 
+          message={this.state.message}
+          score={this.state.score}
+          topScore={this.state.topScore}
+          />
         </header>
-
+        
         <div className="jumbotron jumbotron-fluid">
           <div className="container">
             <h1 className="display-4">Emoji Clicky Game!</h1>
@@ -45,14 +66,21 @@ class App extends Component {
           </div>
         </div>
         <Wrapper>
-          {this.shuffleArray(this.state.images).map(image => <GameCard image={image} />)}
+          {this.shuffleArray(this.state.images).map(image => 
+          <GameCard 
+            clickedCard={this.clickedCard}
+            image={image.image}
+            id={image.id}
+            key={image.id}
+          />          
+          )}
         </Wrapper>
-        <footer class="footer">
-          <div class="bottom">Clicky Game!
-            <img alt="react" src="assets/images/react.svg"></img>
+        <footer className="bg-primary text-white p-4 mt-5">
+          <div className="container ">
+            <div className="bottom">Emoji Clicky Game! by <span className="badge badge-warning">Randy</span>
+            </div>
           </div>
         </footer>
-
       </div>
     );
   }
